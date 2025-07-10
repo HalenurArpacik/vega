@@ -11,7 +11,8 @@ import SwiftUI
 struct exampleProjectApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            //AsyncURLImageView(url: URL(string: "https://picsum.photos/seed/picsum/600/300"))
+            AsyncImageListView()
         }
     }
 }
