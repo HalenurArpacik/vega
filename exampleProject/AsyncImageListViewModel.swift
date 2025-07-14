@@ -6,14 +6,16 @@
 //
 
 import Foundation
+import UIKit 
 
 // MVVM -> Model - View - ViewModel
 
 // macro
+
 @Observable
 class AsyncImageListViewModel {
     @ObservationIgnored let imageLoader: ImageLoader
-    var images: [URL: Data] = [:]
+    var images: [URL: UIImage] = [:]
     
     init(imageLoader: ImageLoader = ImageLoader()) {
         self.imageLoader = imageLoader
@@ -22,7 +24,9 @@ class AsyncImageListViewModel {
     @MainActor
     func loadImage(at url: URL) async {
         guard images[url] == nil else { return }
-        let data = await imageLoader.getImage(from: url)
-        images[url] = data
+        if let image = await imageLoader.getImage(from: url) {
+            images[url] = image
+        }
     }
 }
+

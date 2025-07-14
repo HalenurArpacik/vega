@@ -4,29 +4,32 @@
 //
 //  Created by Halenur Arpacık on 10.07.2025.
 //
-
 import Foundation
+import UIKit
 
 class ImageLoader {
-    var cacheDictionary: [URL: Data] = [:]
+    private let cache: NSCache<NSURL, UIImage>
+    init() {
+            cache = NSCache<NSURL, UIImage>()
+            cache.countLimit = 40
+        }
     
-    func getImage(from url: URL) async -> Data? {
-        if let cachedImageData = cacheDictionary[url] {
-            return cachedImageData
+    func getImage(from url: URL) async -> UIImage? {
+        let nsUrl = url as NSURL
+        
+        if let cachedImage = cache.object(forKey: nsUrl) {
+            return cachedImage
         }
         
         let urlRequest = URLRequest(url: url)
-        let response =  try? await URLSession.shared.data(for: urlRequest)
-        guard let data = response?.0 else {
+        guard let (data, _) = try? await URLSession.shared.data(for: urlRequest),
+              let image = UIImage(data: data) else {
             return nil
         }
         
-        set(imageData: data, url: url)
-        
-        return data
-    }
-    
-    func set(imageData: Data, url: URL) {
-        cacheDictionary[url] = imageData
+        cache.setObject(image, forKey: nsUrl)
+        return image
     }
 }
+
+
