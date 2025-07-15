@@ -27,26 +27,23 @@ class AsyncImageListViewModel {
         self.imageLoader = imageLoader
     }
     
-    
-
-    
-    // Load metadata (URLs, authors, etc.)
-        func loadNextPage() async {
-            guard !isLoading else { return }
-            isLoading = true
-            
-            do {
-                let url = URL.picsumURL(page: currentPage, limit: pageLimit)
-                let (data, _) = try await URLSession.shared.data(from: url)
-                let newItems = try JSONDecoder().decode([ImageInfo].self, from: data)
-                imageInfoList.append(contentsOf: newItems)
-                currentPage += 1
-            } catch {
-                print("Error fetching next page: \(error.localizedDescription)")
-            }
-            
-            isLoading = false
+  
+    func loadNextPage() async {
+        guard !isLoading else { return }
+        isLoading = true
+        
+        do {
+            let url = URL.picsumURL(page: currentPage, limit: pageLimit)
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let newItems = try JSONDecoder().decode([ImageInfo].self, from: data)
+            imageInfoList.append(contentsOf: newItems)
+            currentPage += 1
+        } catch {
+            print("Error fetching next page: \(error.localizedDescription)")
         }
+        
+        isLoading = false
+    }
     
     
     @MainActor
