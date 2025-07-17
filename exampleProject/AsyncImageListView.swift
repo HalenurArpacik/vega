@@ -14,17 +14,16 @@ struct AsyncImageListView: View {
         List {
             ForEach(viewModel.imageInfoList, id: \.id) { info in
                 VStack {
-                    if let url = URL(string: info.download_url),
                        // istek bitince, viewModel, burayı tekrardan çalıştırır - çünkü observable
-                       let uiImage = viewModel.images[url] {
+                    if let uiImage = viewModel.images[info.download_url] {
                         Image(uiImage: uiImage)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .shadow(color: .black, radius: 10)
-                    } else if let url = URL(string: info.download_url) {
+                    } else {
                         ProgressView()
                             .task {
-                                await viewModel.loadImage(at: url)
+                                await viewModel.loadImage(at: info.download_url)
                             }
                     }
                     

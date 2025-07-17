@@ -18,13 +18,18 @@ class AsyncImageListViewModel {
     @ObservationIgnored let imageLoader: ImageLoader 
     var images: [URL: UIImage] = [:]
     var imageInfoList: [ImageInfo] = []
+    let decoder: BackgroundJSONDecoder
     
     private var currentPage = 1
     private let pageLimit = 10
     private var isLoading = false
     
-    init(imageLoader: ImageLoader = ImageLoader()) {
+    init(
+        imageLoader: ImageLoader = ImageLoader(),
+        decoder: BackgroundJSONDecoder = BackgroundJSONDecoder()
+    ) {
         self.imageLoader = imageLoader
+        self.decoder = decoder
     }
     
   
@@ -35,7 +40,9 @@ class AsyncImageListViewModel {
         do {
             let url = URL.picsumURL(page: currentPage, limit: pageLimit)
             let (data, _) = try await URLSession.shared.data(from: url)
-            let newItems = try JSONDecoder().decode([ImageInfo].self, from: data)
+            
+            let newItems = try await decoder.decode([ImageInfo].self, from: data)
+            
             imageInfoList.append(contentsOf: newItems)
             currentPage += 1
         } catch {
@@ -56,3 +63,14 @@ class AsyncImageListViewModel {
     }
 }
 
+actor BackgroundJSONDecoder {
+    let decoder: JSONDecoder
+    
+    init(decoder: JSONDecoder = JSONDecoder()) {
+        self.decoder = decoder
+    }
+    
+    func decode<T>(_ type: T.Type, from data: Data) throws -> T where T : Decodable {
+        try decoder.decode(type, from: data)
+    }
+}

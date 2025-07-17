@@ -22,10 +22,8 @@ class ImageLoader {
         }
         
         let urlRequest = URLRequest(url: url)
-        guard let (data, _) = try? await URLSession.shared.data(for: urlRequest),
-              let image = UIImage(data: data) else {
-            return nil
-        }
+        guard let (data, _) = try? await URLSession.shared.data(for: urlRequest) else { return nil }
+        guard let image = UIImage(data: data) else { return nil }
         
         cache.setObject(image, forKey: nsUrl)
         return image
